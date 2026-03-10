@@ -8,7 +8,9 @@ from typing import List
 app = FastAPI(
     title="GetAround Pricing API",
     description="API de prediction du prix journalier de location de voiture",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url="/swagger",
+    redoc_url=None
 )
 
 # Chargement du modele
@@ -101,7 +103,7 @@ def documentation():
 
         <h3>Exemple de requete</h3>
         <pre>
-curl -X POST "https://your-url/predict" \\
+curl -X POST "https://athanormark-getaround-pricing-api.hf.space/predict" \\
   -H "Content-Type: application/json" \\
   -d '{"input": [["Renault", 140000, 135, "diesel", "black", "sedan", true, true, false, false, true, true, true]]}'
         </pre>
@@ -110,7 +112,7 @@ curl -X POST "https://your-url/predict" \\
         <pre>
 import requests
 
-response = requests.post("https://your-url/predict", json={
+response = requests.post("https://athanormark-getaround-pricing-api.hf.space/predict", json={
     "input": [["Renault", 140000, 135, "diesel", "black", "sedan", True, True, False, False, True, True, True]]
 })
 print(response.json())

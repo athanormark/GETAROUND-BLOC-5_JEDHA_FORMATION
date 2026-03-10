@@ -124,12 +124,18 @@ cd dashboard && docker build -t getaround-dashboard . && docker run -p 7860:7860
 ### Tester l'API
 
 ```bash
+# En local
 curl -X POST "http://localhost:7860/predict" \
+  -H "Content-Type: application/json" \
+  -d '{"input": [["Renault", 140000, 135, "diesel", "black", "sedan", true, true, false, false, true, true, true]]}'
+
+# En production
+curl -X POST "https://athanormark-getaround-pricing-api.hf.space/predict" \
   -H "Content-Type: application/json" \
   -d '{"input": [["Renault", 140000, 135, "diesel", "black", "sedan", true, true, false, false, true, true, true]]}'
 ```
 
-Reponse : `{"prediction": [138.0]}`
+Reponse : `{"prediction": [139.12]}`
 
 ---
 
@@ -152,6 +158,16 @@ Reponse : `{"prediction": [138.0]}`
 ├── requirements.txt            # Dependances globales
 └── .gitignore
 ```
+
+---
+
+## 🔗 Liens de production
+
+| Service | URL |
+|---|---|
+| **API Pricing** | https://athanormark-getaround-pricing-api.hf.space |
+| **Documentation API** | https://athanormark-getaround-pricing-api.hf.space/docs |
+| **Swagger interactif** | https://athanormark-getaround-pricing-api.hf.space/swagger |
 
 ---
 
