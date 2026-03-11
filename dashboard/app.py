@@ -11,9 +11,11 @@ st.title("🚗 GetAround - Analyse des retards")
 st.markdown("Dashboard d'aide a la decision : quel seuil minimum entre deux locations ?")
 
 # --- Chargement ---
+DATA_URL = "https://full-stack-assets.s3.eu-west-3.amazonaws.com/Deployment/get_around_delay_analysis.xlsx"
+
 @st.cache_data
 def load_data():
-    df = pd.read_excel("data/get_around_delay_analysis.xlsx")
+    df = pd.read_excel(DATA_URL)
     return df
 
 df = load_data()

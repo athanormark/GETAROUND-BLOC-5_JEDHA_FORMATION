@@ -165,6 +165,7 @@ Reponse : `{"prediction": [139.12]}`
 
 | Service | URL |
 |---|---|
+| **Dashboard Streamlit** | https://athanormark-getaround-dashboard.hf.space |
 | **API Pricing** | https://athanormark-getaround-pricing-api.hf.space |
 | **Documentation API** | https://athanormark-getaround-pricing-api.hf.space/docs |
 | **Swagger interactif** | https://athanormark-getaround-pricing-api.hf.space/swagger |
