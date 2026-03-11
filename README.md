@@ -41,12 +41,14 @@ GetAround est une plateforme de location de voitures entre particuliers. Les ret
 |---|---|
 | Locations terminees | 18 045 (84.7%) |
 | Locations annulees | 3 265 (15.3%) |
-| En retard au checkout | 57.5% des locations terminees |
+| En retard au checkout | 57.5% des locations avec donnees de checkout |
 | Retard moyen (quand retard) | 202 min (3h22) |
 | Retard median (quand retard) | 53 min |
 | Locations consecutives | 1 841 (8.6%) |
 | Cas problematiques (retard > buffer) | 218 (11.8% des consecutives) |
 | Annulations liees aux retards | 37 (17% des cas problematiques) |
+
+**Observation notable** : les locations **Connect** sont en moyenne rendues en avance (median -9 min), tandis que les locations **Mobile** sont en moyenne rendues en retard (median +14 min).
 
 ### Simulation des seuils
 
@@ -85,13 +87,13 @@ GetAround est une plateforme de location de voitures entre particuliers. Les ret
 | Linear Regression | 0.6937 | 12.12 EUR | 17.96 EUR |
 | **Gradient Boosting** | **0.7504** | **10.29 EUR** | **16.22 EUR** |
 
-Cross-validation Gradient Boosting : R2 = 0.693 (+/- 0.070)
+Cross-validation Gradient Boosting : R2 = 0.693 (+/- 0.070) — leger overfitting par rapport au test set (0.75), ecart modere et performances stables.
 
 ### Feature importance
 
 ![Feature Importance](assets/images/feature_importance.png)
 
-Top features : puissance moteur (46%), kilometrage (27%), GPS (5%)
+Features les plus correlees au prix : puissance moteur (+0.63), kilometrage (-0.45), automatique (+0.42), Connect (+0.32), GPS (+0.31). Les pneus hiver n'ont aucun impact (+0.02).
 
 ### Predictions vs valeurs reelles
 
@@ -184,6 +186,12 @@ GETAROUND-BLOC-5_JEDHA_FORMATION/
 ├── requirements.txt               # Dependances globales
 └── README.md
 ```
+
+---
+
+## Hebergement
+
+Les services sont heberges sur **HuggingFace Spaces** (tier gratuit). Les Spaces peuvent se mettre en veille apres une periode d'inactivite : le premier chargement prend alors quelques secondes le temps du reveil automatique.
 
 ---
 
