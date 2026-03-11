@@ -1,104 +1,146 @@
-# 🚗 GetAround - Analyse des retards & Pricing API
+# GetAround - Analyse des retards & Pricing API
 
-![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.10-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![MLflow](https://img.shields.io/badge/MLflow-0194E2?style=for-the-badge&logo=mlflow&logoColor=white)
 ![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)
-![Status](https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge)
+![HuggingFace](https://img.shields.io/badge/HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)
+
+> **Bloc 5 - Jedha Bootcamp** | Industrialisation d'un algorithme d'apprentissage automatique et automatisation des processus de decision
 
 ---
 
-## 📋 Contexte du Projet
+## Contexte du projet
 
-GetAround est une plateforme de location de voitures entre particuliers. Les retards au checkout generent des frictions pour les conducteurs suivants (attente, voire annulation).
+GetAround est une plateforme de location de voitures entre particuliers. Les retards au checkout generent des frictions pour les conducteurs suivants (attente, voire annulation). L'objectif est de definir un **seuil minimum entre deux locations** consecutives pour reduire les conflits, tout en minimisant l'impact sur le chiffre d'affaires.
 
-**Problematique** : definir un **seuil minimum entre deux locations** consecutives pour reduire les conflits, tout en minimisant l'impact sur le chiffre d'affaires.
+### Livrables
 
-**Deux volets :**
-1. **Analyse des retards** : EDA sur 21 310 locations pour quantifier le probleme et simuler des seuils
-2. **Pricing ML** : modele de prediction du prix journalier, deploye via API FastAPI
+| Livrable | Description | Lien |
+|---|---|---|
+| **Dashboard Streamlit** | Analyse interactive des retards et simulation de seuils | [Acceder au dashboard](https://athanormark-getaround-dashboard.hf.space) |
+| **API Pricing (FastAPI)** | Endpoint `/predict` pour la prediction du prix journalier | [Acceder a l'API](https://athanormark-getaround-pricing-api.hf.space) |
+| **Documentation API** | Page `/docs` avec description des endpoints | [Voir la documentation](https://athanormark-getaround-pricing-api.hf.space/docs) |
+| **Swagger interactif** | Interface de test `/swagger` (OpenAPI) | [Tester l'API](https://athanormark-getaround-pricing-api.hf.space/swagger) |
 
 ---
 
-## 🎯 Resultats
+## Partie 1 - Analyse des retards (EDA)
 
-### Analyse des retards
+### Donnees
+
+- **Source** : [get_around_delay_analysis.xlsx](https://full-stack-assets.s3.eu-west-3.amazonaws.com/Deployment/get_around_delay_analysis.xlsx)
+- **Volume** : 21 310 locations, 7 colonnes
+- **Types de checkin** : Mobile (80%) et Connect (20%)
+
+### Chiffres cles
 
 | Indicateur | Valeur |
 |---|---|
-| Locations totales | 21 310 |
-| Locations en retard | 57.5% |
-| Cas problematiques (retard > buffer) | 218 / 1 841 consecutives (11.8%) |
+| Locations terminees | 18 045 (84.7%) |
+| Locations annulees | 3 265 (15.3%) |
+| En retard au checkout | 57.5% des locations terminees |
+| Retard moyen (quand retard) | 202 min (3h22) |
+| Retard median (quand retard) | 53 min |
+| Locations consecutives | 1 841 (8.6%) |
+| Cas problematiques (retard > buffer) | 218 (11.8% des consecutives) |
 | Annulations liees aux retards | 37 (17% des cas problematiques) |
 
-**Recommandation : seuil de 120 min, scope Connect uniquement**
-- Resout **84%** des cas problematiques pour Connect
+### Simulation des seuils
+
+![Tradeoff seuil](assets/images/threshold_tradeoff.png)
+
+### Recommandation
+
+**Seuil de 120 minutes, scope Connect uniquement**
+
+- Resout **84%** des cas problematiques pour les voitures Connect
 - Ne bloque que **36%** des locations consecutives Connect
-- Les voitures Connect (20% du parc) sont plus sensibles car le checkin est sans contact
+- Impact revenus limite : les voitures Connect representent 20% du parc
+- Le checkin sans contact des voitures Connect les rend plus sensibles aux retards
 
-![Tradeoff](assets/images/threshold_tradeoff.png)
+---
 
-### Pricing ML
+## Partie 2 - Pricing ML
+
+### Donnees
+
+- **Source** : [get_around_pricing_project.csv](https://full-stack-assets.s3.eu-west-3.amazonaws.com/Deployment/get_around_pricing_project.csv)
+- **Volume** : 4 843 vehicules, 13 features, aucune valeur manquante
+- **Target** : `rental_price_per_day` (prix journalier en EUR)
+
+### Pipeline
+
+1. **Preprocessing** (`ColumnTransformer`) : `StandardScaler` (numeriques), `OneHotEncoder` avec `handle_unknown='ignore'` (categoriques), passthrough (booleens)
+2. **Modeles** : Linear Regression (baseline) et Gradient Boosting (200 estimators, depth 5, lr 0.1)
+3. **Validation** : train/test split 80/20 + cross-validation 5 folds
+4. **Tracking** : MLflow (parametres, metriques, artefacts)
+
+### Resultats
 
 | Modele | R2 | MAE | RMSE |
 |---|---|---|---|
 | Linear Regression | 0.6937 | 12.12 EUR | 17.96 EUR |
 | **Gradient Boosting** | **0.7504** | **10.29 EUR** | **16.22 EUR** |
 
-Top 3 features : puissance moteur (46%), kilometrage (27%), GPS (5%)
+Cross-validation Gradient Boosting : R2 = 0.693 (+/- 0.070)
+
+### Feature importance
 
 ![Feature Importance](assets/images/feature_importance.png)
+
+Top features : puissance moteur (46%), kilometrage (27%), GPS (5%)
+
+### Predictions vs valeurs reelles
 
 ![Predictions vs Reel](assets/images/predictions_vs_actual.png)
 
 ---
 
-## 🏗️ Pipeline Technique
+## Tester l'API
 
-### Analyse des retards
-1. **Chargement** des donnees Excel (21 310 locations, 7 colonnes)
-2. **EDA** : distributions, retards par type de checkin, analyse des valeurs manquantes
-3. **Jointure** des locations consecutives pour identifier les cas problematiques
-4. **Simulation** de seuils (0-720 min) croises avec le scope (all / connect)
-5. **Dashboard Streamlit** interactif avec slider de seuil et graphiques Plotly
+### Avec curl
 
-### Pricing ML
-1. **Preprocessing** via `ColumnTransformer` : `StandardScaler` (numeriques), `OneHotEncoder` (categoriques), passthrough (booleens)
-2. **Modelisation** : Linear Regression (baseline) puis Gradient Boosting (200 estimators, depth 5)
-3. **Validation** : train/test split 80/20 + cross-validation 5 folds
-4. **Tracking MLflow** : log des parametres, metriques et modeles pour chaque run
-5. **Export** : pipeline sklearn complete en `.joblib`, servie via FastAPI
-6. **Deploiement** : Docker + HuggingFace Spaces
+```bash
+curl -X POST "https://athanormark-getaround-pricing-api.hf.space/predict" \
+  -H "Content-Type: application/json" \
+  -d '{"input": [["Renault", 140000, 135, "diesel", "black", "sedan", true, true, false, false, true, true, true]]}'
+```
 
-### Choix techniques
-- **Gradient Boosting** plutot que Random Forest : meilleures performances sur ce dataset (R2 +0.05) et meilleur controle du bias-variance via le learning rate
-- **Pipeline sklearn** : encapsule preprocessing + modele pour eviter tout data leakage entre train et test
-- **`drop='first'`** sur OneHotEncoder : evite la multicolinearite dans la regression lineaire
-- **MLflow** : tracking des experiences pour comparer les modeles objectivement
-- **Plotly** (impose par le cursus) : graphiques interactifs dans le notebook et le dashboard
+### Avec Python
+
+```python
+import requests
+
+response = requests.post("https://athanormark-getaround-pricing-api.hf.space/predict", json={
+    "input": [["Renault", 140000, 135, "diesel", "black", "sedan", True, True, False, False, True, True, True]]
+})
+print(response.json())
+# {"prediction": [139.12]}
+```
 
 ---
 
-## 🚀 Installation et Execution
+## Installation locale
 
 ### Prerequis
-- Python 3.10+
-- Docker (optionnel, pour le deploiement local)
 
-### En local
+- Python 3.10+
+- Docker (optionnel)
+
+### Setup
 
 ```bash
 git clone https://github.com/athanormark/GETAROUND-BLOC-5_JEDHA_FORMATION.git
 cd GETAROUND-BLOC-5_JEDHA_FORMATION
-
 pip install -r requirements.txt
 ```
 
-Les datasets sont a telecharger manuellement :
-- [Delay Analysis](https://full-stack-assets.s3.eu-west-3.amazonaws.com/Deployment/get_around_delay_analysis.xlsx) → `data/`
-- [Pricing](https://full-stack-assets.s3.eu-west-3.amazonaws.com/Deployment/get_around_pricing_project.csv) → `data/`
+Les datasets sont a telecharger dans `data/` :
+- [Delay Analysis (.xlsx)](https://full-stack-assets.s3.eu-west-3.amazonaws.com/Deployment/get_around_delay_analysis.xlsx)
+- [Pricing (.csv)](https://full-stack-assets.s3.eu-west-3.amazonaws.com/Deployment/get_around_pricing_project.csv)
 
 ```bash
 # Notebook
@@ -111,7 +153,7 @@ cd dashboard && streamlit run app.py
 cd api && uvicorn app:app --reload
 ```
 
-### Avec Docker
+### Docker
 
 ```bash
 # API
@@ -121,57 +163,30 @@ cd api && docker build -t getaround-api . && docker run -p 7860:7860 getaround-a
 cd dashboard && docker build -t getaround-dashboard . && docker run -p 7860:7860 getaround-dashboard
 ```
 
-### Tester l'API
-
-```bash
-# En local
-curl -X POST "http://localhost:7860/predict" \
-  -H "Content-Type: application/json" \
-  -d '{"input": [["Renault", 140000, 135, "diesel", "black", "sedan", true, true, false, false, true, true, true]]}'
-
-# En production
-curl -X POST "https://athanormark-getaround-pricing-api.hf.space/predict" \
-  -H "Content-Type: application/json" \
-  -d '{"input": [["Renault", 140000, 135, "diesel", "black", "sedan", true, true, false, false, true, true, true]]}'
-```
-
-Reponse : `{"prediction": [139.12]}`
-
 ---
 
-## 📂 Structure du Projet
+## Structure du projet
 
 ```
-├── getaround_analysis.ipynb    # Notebook principal (EDA + ML)
+GETAROUND-BLOC-5_JEDHA_FORMATION/
+├── getaround_analysis.ipynb       # Notebook principal (EDA + ML + MLflow)
 ├── dashboard/
-│   ├── app.py                  # Dashboard Streamlit
-│   ├── Dockerfile
-│   ├── requirements.txt
-│   └── data/                   # Donnees pour le dashboard
-├── api/
-│   ├── app.py                  # API FastAPI (/predict + /docs)
-│   ├── model.joblib            # Modele entraine (Gradient Boosting)
+│   ├── app.py                     # Dashboard Streamlit (theme dark)
 │   ├── Dockerfile
 │   └── requirements.txt
-├── assets/images/              # Graphiques exportes
-├── data/                       # Datasets (non versiones)
-├── requirements.txt            # Dependances globales
-└── .gitignore
+├── api/
+│   ├── app.py                     # API FastAPI (/predict, /docs, /swagger)
+│   ├── model.joblib               # Pipeline sklearn (Gradient Boosting)
+│   ├── Dockerfile
+│   └── requirements.txt
+├── assets/images/                 # Graphiques exportes (PNG)
+├── data/                          # Datasets (non versionnes, .gitignore)
+├── requirements.txt               # Dependances globales
+└── README.md
 ```
 
 ---
 
-## 🔗 Liens de production
+## Auteur
 
-| Service | URL |
-|---|---|
-| **Dashboard Streamlit** | https://athanormark-getaround-dashboard.hf.space |
-| **API Pricing** | https://athanormark-getaround-pricing-api.hf.space |
-| **Documentation API** | https://athanormark-getaround-pricing-api.hf.space/docs |
-| **Swagger interactif** | https://athanormark-getaround-pricing-api.hf.space/swagger |
-
----
-
-## 👤 Auteur
-
-**Athanor SAVOUILLAN**
+**Athanor SAVOUILLAN** - Jedha Data Fullstack Bootcamp
