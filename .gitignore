@@ -31,7 +31,12 @@ mlartifacts/
 
 # Misc
 *.log
+
+# Fichiers locaux (non necessaires dans le repo)
 create_notebook.py
 generate_plots.py
 01-Getaround_analysis.ipynb
 api/feature_info.json
+
+# Claude Code
+.claude/

@@ -13,17 +13,21 @@ app = FastAPI(
     redoc_url=None
 )
 
-# Chargement du modele
+# Chargement du modele entraine (pipeline sklearn)
 model = joblib.load("model.joblib")
 
-# Colonnes attendues
+# Colonnes attendues par le modele (13 features)
 FEATURE_COLUMNS = [
     "model_key", "mileage", "engine_power", "fuel", "paint_color",
-    "car_type", "private_parking_available", "has_gps", "has_air_conditioning",
-    "automatic_car", "has_getaround_connect", "has_speed_regulator", "winter_tires"
+    "car_type", "private_parking_available", "has_gps",
+    "has_air_conditioning", "automatic_car", "has_getaround_connect",
+    "has_speed_regulator", "winter_tires"
 ]
 
+
 class PredictionInput(BaseModel):
+    """Schema d'un vehicule individuel (non utilise directement)."""
+
     model_key: str
     mileage: int
     engine_power: int
@@ -38,55 +42,115 @@ class PredictionInput(BaseModel):
     has_speed_regulator: bool
     winter_tires: bool
 
+
 class PredictionRequest(BaseModel):
+    """Corps de la requete : liste de listes (1 sous-liste = 1 vehicule)."""
+
     input: List[List]
 
+
 class PredictionResponse(BaseModel):
+    """Reponse : liste des prix predits en EUR/jour."""
+
     prediction: List[float]
 
 
+# Style CSS commun entre la page d'accueil et la documentation
 COMMON_STYLE = """
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0f1117; color: #e0e0e0; line-height: 1.7; }
-    .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 48px 24px; text-align: center; border-bottom: 3px solid #5ce1e6; }
+    body {
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background: #0f1117; color: #e0e0e0; line-height: 1.7;
+    }
+    .header {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        padding: 48px 24px; text-align: center;
+        border-bottom: 3px solid #5ce1e6;
+    }
     .header h1 { font-size: 2.2rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
     .header .subtitle { color: #8899aa; font-size: 1.1rem; }
-    .header .badge { display: inline-block; background: #5ce1e6; color: #0f1117; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-top: 12px; }
+    .header .badge {
+        display: inline-block; background: #5ce1e6; color: #0f1117;
+        padding: 4px 14px; border-radius: 20px;
+        font-size: 0.8rem; font-weight: 600; margin-top: 12px;
+    }
     .container { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
-    .card { background: #1a1d29; border: 1px solid #2a2d3a; border-radius: 12px; padding: 28px; margin-bottom: 24px; transition: border-color 0.2s; }
+    .card {
+        background: #1a1d29; border: 1px solid #2a2d3a;
+        border-radius: 12px; padding: 28px; margin-bottom: 24px;
+        transition: border-color 0.2s;
+    }
     .card:hover { border-color: #5ce1e6; }
-    .card h2 { color: #5ce1e6; font-size: 1.3rem; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .card h2 {
+        color: #5ce1e6; font-size: 1.3rem; margin-bottom: 12px;
+        display: flex; align-items: center; gap: 10px;
+    }
     .card p { color: #aab; }
     a { color: #5ce1e6; text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .btn { display: inline-block; padding: 12px 28px; border-radius: 8px; font-weight: 600; font-size: 1rem; transition: all 0.2s; text-decoration: none !important; }
+    .btn {
+        display: inline-block; padding: 12px 28px; border-radius: 8px;
+        font-weight: 600; font-size: 1rem; transition: all 0.2s;
+        text-decoration: none !important;
+    }
     .btn-primary { background: #5ce1e6; color: #0f1117; }
     .btn-primary:hover { background: #4dc8cd; transform: translateY(-1px); }
     .btn-outline { border: 1px solid #5ce1e6; color: #5ce1e6; background: transparent; }
     .btn-outline:hover { background: rgba(92,225,230,0.1); }
-    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 20px 0; }
-    .metric { background: #12141d; border: 1px solid #2a2d3a; border-radius: 10px; padding: 20px; text-align: center; }
+    .metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px; margin: 20px 0;
+    }
+    .metric {
+        background: #12141d; border: 1px solid #2a2d3a;
+        border-radius: 10px; padding: 20px; text-align: center;
+    }
     .metric .value { font-size: 1.8rem; font-weight: 700; color: #5ce1e6; }
     .metric .label { font-size: 0.85rem; color: #778; margin-top: 4px; }
-    code { background: #12141d; color: #5ce1e6; padding: 3px 8px; border-radius: 4px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.9em; }
-    pre { background: #12141d; border: 1px solid #2a2d3a; border-radius: 8px; padding: 20px; overflow-x: auto; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88rem; color: #c8d0d8; line-height: 1.5; }
-    table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 8px; overflow: hidden; border: 1px solid #2a2d3a; margin: 16px 0; }
-    th { background: #1e2130; color: #5ce1e6; padding: 12px 16px; text-align: left; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    code {
+        background: #12141d; color: #5ce1e6; padding: 3px 8px;
+        border-radius: 4px;
+        font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.9em;
+    }
+    pre {
+        background: #12141d; border: 1px solid #2a2d3a;
+        border-radius: 8px; padding: 20px; overflow-x: auto;
+        font-family: 'Fira Code', 'Consolas', monospace;
+        font-size: 0.88rem; color: #c8d0d8; line-height: 1.5;
+    }
+    table {
+        width: 100%; border-collapse: separate; border-spacing: 0;
+        border-radius: 8px; overflow: hidden;
+        border: 1px solid #2a2d3a; margin: 16px 0;
+    }
+    th {
+        background: #1e2130; color: #5ce1e6; padding: 12px 16px;
+        text-align: left; font-weight: 600; font-size: 0.85rem;
+        text-transform: uppercase; letter-spacing: 0.5px;
+    }
     td { padding: 10px 16px; border-top: 1px solid #2a2d3a; font-size: 0.92rem; }
     tr:hover td { background: rgba(92,225,230,0.03); }
-    .method-badge { display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight: 700; font-size: 0.8rem; font-family: monospace; }
+    .method-badge {
+        display: inline-block; padding: 4px 12px; border-radius: 4px;
+        font-weight: 700; font-size: 0.8rem; font-family: monospace;
+    }
     .post { background: rgba(73,204,144,0.15); color: #49cc91; }
     .get { background: rgba(92,225,230,0.15); color: #5ce1e6; }
     .endpoint { font-family: monospace; font-size: 1rem; color: #fff; margin-left: 8px; }
     .nav { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
-    .footer { text-align: center; padding: 32px; color: #556; font-size: 0.85rem; border-top: 1px solid #1e2130; margin-top: 40px; }
+    .footer {
+        text-align: center; padding: 32px; color: #556;
+        font-size: 0.85rem; border-top: 1px solid #1e2130; margin-top: 40px;
+    }
 </style>
 """
 
 
 @app.get("/", response_class=HTMLResponse)
 def root():
+    """Page d'accueil de l'API avec metriques et liens rapides."""
     return f"""
     <html>
     <head>
@@ -150,6 +214,7 @@ def root():
 
 @app.get("/docs", response_class=HTMLResponse)
 def documentation():
+    """Page de documentation avec exemples curl et Python."""
     return f"""
     <html>
     <head>
@@ -238,16 +303,19 @@ print(response.json())  # {{"prediction": [139.12]}}</pre>
 
 @app.post("/predict", response_model=PredictionResponse)
 def predict(request: PredictionRequest):
-    # Convertir l'input en DataFrame
+    """Predit le prix journalier pour un ou plusieurs vehicules."""
+    # Convertir l'input en DataFrame avec les colonnes attendues
     df = pd.DataFrame(request.input, columns=FEATURE_COLUMNS)
 
-    # Conversion des types booleens
+    # Conversion des colonnes booleennes en entiers (0/1)
     bool_cols = [
         "private_parking_available", "has_gps", "has_air_conditioning",
-        "automatic_car", "has_getaround_connect", "has_speed_regulator", "winter_tires"
+        "automatic_car", "has_getaround_connect", "has_speed_regulator",
+        "winter_tires"
     ]
     for col in bool_cols:
         df[col] = df[col].astype(int)
 
+    # Prediction via le pipeline sklearn
     predictions = model.predict(df)
     return {"prediction": [round(p, 2) for p in predictions]}
