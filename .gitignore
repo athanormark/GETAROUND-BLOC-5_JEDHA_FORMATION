@@ -38,5 +38,18 @@ generate_plots.py
 01-Getaround_analysis.ipynb
 api/feature_info.json
 
+# Fichiers de presentation (local uniquement)
+FICHE_ANTI_QUESTIONS.md
+LECONS_PRESENTATION.txt
+*.pptx
+
+# Exports manuels a la racine (doublons de assets/images/)
+/Histogramme*.png
+/Tradeoff*.png
+/checkin_type_pie.png
+/delay_by_checkin.png
+/predictions_vs_actual.png
+/threshold_tradeoff.png
+
 # Claude Code
 .claude/

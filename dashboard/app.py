@@ -8,7 +8,7 @@ from plotly.subplots import make_subplots
 # --- Configuration de la page ---
 st.set_page_config(
     page_title="GetAround - Delay Analysis",
-    page_icon="🚗",
+    page_icon="GA",
     layout="wide"
 )
 
@@ -57,7 +57,10 @@ PLOTLY_LAYOUT = dict(
     title_font_color="#5ce1e6",
     xaxis=dict(gridcolor="#2a2d3a", zerolinecolor="#2a2d3a"),
     yaxis=dict(gridcolor="#2a2d3a", zerolinecolor="#2a2d3a"),
-    colorway=["#5ce1e6", "#49cc91", "#f0c36d", "#e06c75", "#c678dd", "#61afef"],
+    colorway=[
+        "#5ce1e6", "#49cc91", "#f0c36d",
+        "#e06c75", "#c678dd", "#61afef",
+    ],
     legend=dict(bgcolor="rgba(0,0,0,0)")
 )
 
@@ -107,8 +110,14 @@ st.markdown(
 )
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Total locations", f"{total:,}")
-col2.metric("Terminees", f"{len(ended):,}", f"{len(ended)/total*100:.1f}%")
-col3.metric("Annulees", f"{len(canceled):,}", f"{len(canceled)/total*100:.1f}%")
+col2.metric(
+    "Terminees", f"{len(ended):,}",
+    f"{len(ended) / total * 100:.1f}%",
+)
+col3.metric(
+    "Annulees", f"{len(canceled):,}",
+    f"{len(canceled) / total * 100:.1f}%",
+)
 
 delays = ended["delay_at_checkout_in_minutes"].dropna()
 late = delays[delays > 0]
@@ -321,14 +330,19 @@ st.markdown(
 )
 summary = df_res[df_res["threshold"].isin([30, 60, 120, 180, 240, 360, 720])]
 st.dataframe(
-    summary.style.format({"pct_bloquees": "{:.1f}%", "pct_resolus": "{:.1f}%"}),
+    summary.style.format({
+        "pct_bloquees": "{:.1f}%",
+        "pct_resolus": "{:.1f}%",
+    }),
     use_container_width=True
 )
 
 # --- Pied de page ---
 st.markdown(
     '<div class="footer">'
-    'GetAround Delay Dashboard &mdash; Athanor Savouillan &mdash; Jedha Bootcamp'
+    'GetAround Delay Dashboard'
+    ' &mdash; Athanor Savouillan'
+    ' &mdash; Jedha Bootcamp'
     '</div>',
     unsafe_allow_html=True
 )
