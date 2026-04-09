@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment
+.env
+venv/
+.venv/
+
+# Data (trop volumineux)
+data/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Misc
+*.log
+
+# Fichiers locaux (non necessaires dans le repo)
+create_notebook.py
+generate_plots.py
+01-Getaround_analysis.ipynb
+api/feature_info.json
+
+# Fichiers de presentation (local uniquement)
+FICHE_ANTI_QUESTIONS.md
+LECONS_PRESENTATION.txt
+*.pptx
+
+# Exports manuels a la racine (doublons de assets/images/)
+/Histogramme*.png
+/Tradeoff*.png
+/checkin_type_pie.png
+/delay_by_checkin.png
+/predictions_vs_actual.png
+/threshold_tradeoff.png
+
+# Dev tools
+.claude/
