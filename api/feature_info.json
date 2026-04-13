@@ -1,0 +1,48 @@
+{
+  "columns": [
+    "model_key",
+    "mileage",
+    "engine_power",
+    "fuel",
+    "paint_color",
+    "car_type",
+    "private_parking_available",
+    "has_gps",
+    "has_air_conditioning",
+    "automatic_car",
+    "has_getaround_connect",
+    "has_speed_regulator",
+    "winter_tires"
+  ],
+  "cat_cols": [
+    "model_key",
+    "fuel",
+    "paint_color",
+    "car_type"
+  ],
+  "bool_cols": [
+    "private_parking_available",
+    "has_gps",
+    "has_air_conditioning",
+    "automatic_car",
+    "has_getaround_connect",
+    "has_speed_regulator",
+    "winter_tires"
+  ],
+  "num_cols": [
+    "mileage",
+    "engine_power"
+  ],
+  "metrics": {
+    "linear_regression": {
+      "r2": 0.6937,
+      "mae": 12.12,
+      "rmse": 17.96
+    },
+    "gradient_boosting": {
+      "r2": 0.7504,
+      "mae": 10.29,
+      "rmse": 16.22
+    }
+  }
+}
