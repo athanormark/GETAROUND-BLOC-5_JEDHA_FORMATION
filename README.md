@@ -1,5 +1,7 @@
 # GetAround - Analyse des retards & Pricing API
 
+> Dashboard Streamlit des retards, API FastAPI de prédiction de prix et déploiement Docker, projet de formation JEDHA.
+
 [![Python](https://img.shields.io/badge/Python-3.10-3776AB?style=flat&logo=python&logoColor=fff)](#)
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=fff)](#)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=fff)](#)
@@ -8,9 +10,7 @@
 [![scikit--learn](https://img.shields.io/badge/scikit--learn-F7931E?style=flat&logo=scikit-learn&logoColor=fff)](#)
 [![JEDHA](https://img.shields.io/badge/JEDHA-blueviolet?style=flat)](#)
 
----
-
-## About
+## Contexte et rôle
 
 Projet du **Bloc 5 - Jedha Bootcamp** : industrialisation d'un algorithme d'apprentissage automatique et automatisation des processus de décision.
 
@@ -25,10 +25,6 @@ GetAround est une plateforme de location de voitures entre particuliers. Les ret
 | API Pricing (FastAPI) | Endpoint `/predict` pour la prédiction du prix journalier | [Accéder à l'API](https://athanormark-getaround-pricing-api.hf.space) |
 | Documentation API | Page `/docs` avec description des endpoints | [Voir la documentation](https://athanormark-getaround-pricing-api.hf.space/docs) |
 | Swagger interactif | Interface de test `/swagger` (OpenAPI) | [Tester l'API](https://athanormark-getaround-pricing-api.hf.space/swagger) |
-
----
-
-## Contexte et rôle
 
 Projet de formation du bootcamp JEDHA (Data Fullstack, BLOC 5, industrialisation et déploiement d'un modèle). L'énoncé, le contexte métier et les données viennent de JEDHA ; GetAround est un cas d'étude pédagogique, sans lien avec l'entreprise ni mission réelle.
 
@@ -52,39 +48,7 @@ Ce dépôt rassemble mon travail sur ce cas : dashboard Streamlit, API FastAPI e
 
 ---
 
-## Installation
-
-### Prérequis
-
-- Python 3.10+
-- Docker (optionnel)
-
-### Setup
-
-```bash
-git clone https://github.com/athanormark/GETAROUND-BLOC-5_JEDHA_FORMATION.git
-cd GETAROUND-BLOC-5_JEDHA_FORMATION
-pip install -r requirements.txt
-```
-
-Télécharger les datasets dans `data/` :
-- [Delay Analysis (.xlsx)](https://full-stack-assets.s3.eu-west-3.amazonaws.com/Deployment/get_around_delay_analysis.xlsx)
-- [Pricing (.csv)](https://full-stack-assets.s3.eu-west-3.amazonaws.com/Deployment/get_around_pricing_project.csv)
-
-```bash
-# Notebook
-jupyter notebook getaround_analysis.ipynb
-
-# Dashboard
-cd dashboard && streamlit run app.py
-
-# API
-cd api && uvicorn app:app --reload
-```
-
----
-
-## Pipeline
+## Fonctionnalités
 
 ### Partie 1 - Analyse des retards
 
@@ -107,6 +71,15 @@ Les locations **Connect** sont en moyenne rendues en avance (médian -9 min), ta
 2. Modèles : Linear Regression (baseline) et Gradient Boosting (200 estimators, depth 5, lr 0.1)
 3. Validation : train/test split 80/20 + cross-validation 5 folds
 4. Tracking : MLflow (paramètres, métriques, artefacts)
+
+---
+
+## Stack
+
+- Langage : Python 3.10
+- Données et modélisation : pandas, NumPy, scikit-learn, joblib, MLflow
+- Application : Streamlit (dashboard), FastAPI et uvicorn (API), Plotly
+- Déploiement : Docker, Hugging Face Spaces
 
 ---
 
@@ -137,6 +110,38 @@ Cross-validation Gradient Boosting : R2 = 0.693 (+/- 0.070).
 ![Feature Importance](assets/images/feature_importance.png)
 
 Features les plus corrélées au prix : puissance moteur (+0.63), kilométrage (-0.45), automatique (+0.42), Connect (+0.32), GPS (+0.31).
+
+---
+
+## Lancer le projet
+
+### Prérequis
+
+- Python 3.10+
+- Docker (optionnel)
+
+### Setup
+
+```bash
+git clone https://github.com/athanormark/GETAROUND-BLOC-5_JEDHA_FORMATION.git
+cd GETAROUND-BLOC-5_JEDHA_FORMATION
+pip install -r requirements.txt
+```
+
+Télécharger les datasets dans `data/` :
+- [Delay Analysis (.xlsx)](https://full-stack-assets.s3.eu-west-3.amazonaws.com/Deployment/get_around_delay_analysis.xlsx)
+- [Pricing (.csv)](https://full-stack-assets.s3.eu-west-3.amazonaws.com/Deployment/get_around_pricing_project.csv)
+
+```bash
+# Notebook
+jupyter notebook getaround_analysis.ipynb
+
+# Dashboard
+cd dashboard && streamlit run app.py
+
+# API
+cd api && uvicorn app:app --reload
+```
 
 ---
 
@@ -199,4 +204,4 @@ Les services sont hébergés sur **HuggingFace Spaces** (tier gratuit). Les Spac
 
 ## Auteur
 
-Athanor SAVOUILLAN · [GitHub](https://github.com/athanormark)
+Athanor Savouillan · [Réalisations](https://atelia-conseil.com/realisations/) · [GitHub](https://github.com/athanormark)
