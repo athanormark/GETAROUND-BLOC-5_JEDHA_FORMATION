@@ -28,6 +28,14 @@ GetAround est une plateforme de location de voitures entre particuliers. Les ret
 
 ---
 
+## Contexte et rôle
+
+Projet de formation du bootcamp JEDHA (Data Fullstack, BLOC 5, industrialisation et déploiement d'un modèle). L'énoncé, le contexte métier et les données viennent de JEDHA ; GetAround est un cas d'étude pédagogique, sans lien avec l'entreprise ni mission réelle.
+
+Ce dépôt rassemble mon travail sur ce cas : dashboard Streamlit, API FastAPI et déploiement conteneurisé. Les résultats annoncés plus bas sont ceux du notebook du dépôt.
+
+---
+
 ## Dataset
 
 ### Analyse des retards
